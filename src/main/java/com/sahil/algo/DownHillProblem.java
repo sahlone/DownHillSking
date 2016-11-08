@@ -26,8 +26,9 @@ public class DownHillProblem {
     private Integer[][] inputDownHillData = {};
     private Set<String> visitedElements = new HashSet<String>();
 
-    public String processInput() throws MalformedURLException, IOException {
-        InputStream inputStream = new URL(inputURL).openStream();
+/*    public String processInput() throws MalformedURLException, IOException {
+        //InputStream inputStream = new URL(inputURL).openStream();
+        InputStream inputStream = new FileInputStream(new File("C:\\Users\\sahil.lone\\Desktop\\map.txt"));
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String lineRead = null;
         lineRead = bufferedReader.readLine();
@@ -70,8 +71,8 @@ public class DownHillProblem {
             inputRowsParsed += 1;
         }
 
-
-        int lastCordinatesKey = Integer.MAX_VALUE;
+        //since max value is 1500
+        int lastCordinatesKey = 1501;
         Map.Entry<Integer, List<Integer>> lowerEntry = sortedInputMap.lowerEntry(lastCordinatesKey);
         String output = maxLength + "" + maxDrop;
         while (lowerEntry != null) {
@@ -88,12 +89,60 @@ public class DownHillProblem {
         }
         return output = maxLength + "" + maxDrop;
 
+    }*/
+
+    public String processInput() throws MalformedURLException, IOException {
+        InputStream inputStream = new URL(inputURL).openStream();
+        //InputStream inputStream = new FileInputStream(new File("C:\\Users\\sahil.lone\\Desktop\\map.txt"));
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        String lineRead = null;
+        lineRead = bufferedReader.readLine();
+        if (null == lineRead) {
+            throw new RuntimeException("NO DATA TO READ FROM FILE" + inputURL);
+        }
+        StringTokenizer stringTokenizer = new StringTokenizer(lineRead, INPUT_DELIMITTER);
+        if (!stringTokenizer.hasMoreElements()) {
+            throw new RuntimeException("DATA NOT VALID" + inputURL);
+        }
+        noOfRows = Integer.valueOf(stringTokenizer.nextToken());
+        if (!stringTokenizer.hasMoreElements()) {
+            throw new RuntimeException("DATA NOT VALID" + inputURL);
+        }
+        noOfColumns = Integer.valueOf(stringTokenizer.nextToken());
+
+        inputDownHillData = new Integer[noOfRows][noOfColumns];
+
+        int inputRowsParsed = 0;
+        while ((lineRead = bufferedReader.readLine()) != null && inputRowsParsed < noOfRows) {
+            stringTokenizer = new StringTokenizer(lineRead, INPUT_DELIMITTER);
+            int inputColumnsParsed = 0;
+            while (stringTokenizer.hasMoreElements() && inputColumnsParsed < noOfColumns) {
+                String elevationValue = stringTokenizer.nextToken();
+                int elevationValueInt = Integer.valueOf(elevationValue);
+                inputDownHillData[inputRowsParsed][inputColumnsParsed] = elevationValueInt;
+
+                inputColumnsParsed += 1;
+            }
+            inputRowsParsed += 1;
+        }
+
+
+        int lastCordinatesKey = Integer.MAX_VALUE;
+        String output = maxLength + "" + maxDrop;
+        for (int rowCount = 0; rowCount < noOfRows; rowCount++) {
+
+            for (int columnCount = 0; columnCount < noOfColumns; columnCount++) {
+                int currentPathLength = 0;
+                int startPointElevation = inputDownHillData[rowCount][columnCount];
+                backTrackRecursively(rowCount, columnCount, currentPathLength, startPointElevation);
+            }
+        }
+        return output = maxLength + "" + maxDrop;
+
     }
 
     private void backTrackRecursively(int rowCount, int columnCount, int currentPathLength, int startPointElevation) {
-        if (visitedElements.contains(rowCount + ":" + columnCount)) {
-            return;
-        }
+
         visitedElements.add(rowCount + ":" + columnCount);
         currentPathLength = currentPathLength + 1;
         if (currentPathLength > maxLength) {
@@ -125,9 +174,6 @@ public class DownHillProblem {
             backTrackRecursively(rowCount + 1, columnCount, currentPathLength, startPointElevation);
         }
     }
-
-
-
 
 
     public static class ArrayIndexComparator implements Comparator<Integer> {
